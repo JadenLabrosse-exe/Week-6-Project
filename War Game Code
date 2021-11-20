@@ -1,0 +1,142 @@
+class Player {
+    constructor(name) {
+        this.name = name;
+        this.score = 0;
+        this.hand = [];
+    }
+
+    // Used for MOCHA/CHAI testing
+    getPlayerName() {
+        return this.name;
+    }
+
+    // method to increment score based on winning
+    incrementScore() {
+        this.score += 1;
+    }
+
+    getScore () {
+        return this.score;
+    } 
+
+    // someway to compare score or get score
+    // a name
+    // a score
+    // a hand of cards
+    drawCard() {
+        return this.hand.pop();// a method to draw a card from the hand
+    }
+}
+
+class Card {
+    constructor(value, cardType) {
+        this.value = value
+        this.cardType = cardType;
+    }
+
+    getValue() {
+        return this.value;
+    }
+
+    cardType() {
+        return `${this.cardType} is equal to a value of ${this.value}`
+    }
+}
+
+class Deck {
+    constructor() {
+        this.cards = []
+        this.suits = ['Hearts', 'Spades', 'Diamonds', 'Clubs']
+    }
+    createDeck() {
+        for(let i = 0; i < this.suits.length; i++) {
+            for(let j = 2; j <=14; j++) {
+                if (j == 14) {
+                    this.cards.push(new Card(j, `Ace of ${this.suits[i]}`));
+                } else if (j == 11) {
+                    this.cards.push(new Card(j, `Jack of ${this.suits[i]}`));
+                } else if (j == 12) {
+                    this.cards.push(new Card(j, `Queen of ${this.suits[i]}`));
+                } else if (j == 13) {
+                    this.cards.push(new Card(j, `King of ${this.suits[i]}`));
+                } else {
+                    this.cards.push(new Card(j, `${j} of ${this.suits[i]}`));
+                }
+            } 
+        }      
+    }
+    drawCard() {
+        return this.cards.pop();// a method to draw a card from the hand
+    }
+    // build out the nested for-loops in the Deck and create each card instance within that loop
+    // push each instance to array of cards
+    shuffleCards() {
+        const { cards } = this;
+        let m = 52, i;
+        while (m) {
+            i = Math.floor(Math.random() * m--);
+            [cards[m], cards[i]] = [cards[i], cards[m]];
+        }
+        return this;
+    }
+
+    
+}
+
+class PlayGame {
+    constructor() {
+        this.player1 = new Player("Player One")
+        this.player2 = new Player("Player Two")
+        this.deck = new Deck();
+        this.drawRound = 0;
+    }
+    
+    start() {
+        this.deck.createDeck();
+        this.deck.shuffleCards();
+        this.dealCards(this.deck);
+        console.log(this.deck);
+    }
+
+    dealCards(deck) {
+        for(let i = 0; i < 26; i++) {
+            this.player1.hand.push(deck.drawCard());
+            this.player2.hand.push(deck.drawCard());
+        }
+    }
+
+    playRound() {
+        for(let round = 1; round <= 26; round++) {
+            let player1Card = this.player1.drawCard();
+            let player2Card = this.player2.drawCard();
+            if (player1Card.getValue() > player2Card.getValue()) {
+                this.player1.incrementScore();
+            } else if (player1Card.getValue() < player2Card.getValue()) {
+                    this.player2.incrementScore();
+            } else {
+                this.drawRound++;
+            }
+        }
+    }
+
+    whoWon() {
+        if(this.player1.getScore() > this.player2.getScore()) {
+            console.log(`
+            Player One wins with ${this.player1.getScore()} points!
+            Player Two loses with ${this.player2.getScore()} points!
+            There were ${this.drawRound} draws!`);
+        } else if (this.player1.getScore() < this.player2.getScore()) {
+            console.log(`
+            Player Two wins with ${this.player2.getScore()} points!
+            Player One loses with ${this.player1.getScore()} points!
+            There were ${this.drawRound} draws!`);
+        } else {
+            console.log("Its a draw!")
+        }
+    }
+}
+
+let game = new PlayGame();
+game.start();
+game.playRound();
+game.whoWon();
